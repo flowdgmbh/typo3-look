@@ -1,0 +1,25 @@
+:root {
+    --preview-scale: 0.5;
+    --content-fade-overlay-display: none;
+}
+
+html {
+    overflow: hidden;
+}
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    zoom: var(--preview-scale);
+    -moz-transform: scale(var(--preview-scale));
+    &:after {
+        display: var(--content-fade-overlay-display, none);
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    }
+}

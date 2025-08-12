@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Content Preview</title>
+        <f:for each="{assets.css}" as="cssFile">
+            <link rel="stylesheet" href="{f:uri.resource(path: cssFile)}" />
+        </f:for>
+
+        <script type="module" src="{f:uri.resource(path: 'EXT:look/Resources/Public/Javascript/Backend/iFramePreview.js')}" async defer></script>
+    </head>
+    <body data-preview-scale="{scale}">
+        {previewContent -> f:format.raw()}
+    </body>
+</html>
