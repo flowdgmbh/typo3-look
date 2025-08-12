@@ -16,6 +16,7 @@ class CssViewHelper extends AbstractViewHelper
             'path',
             'string',
             'Path to the css file',
+            true,
         );
     }
 
