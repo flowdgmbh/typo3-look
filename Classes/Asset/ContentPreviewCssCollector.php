@@ -50,7 +50,7 @@ class ContentPreviewCssCollector implements \ArrayAccess, \Iterator {
 
     public function valid(): bool
     {
-        return $this->current() !== false;
+        return key($this->files) !== null;
     }
 
     public function rewind(): void
