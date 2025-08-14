@@ -86,8 +86,8 @@ class ContentPreviewViewHelper extends AbstractViewHelper
         } catch (\Exception $e) {
             $flashMessage = GeneralUtility::makeInstance(
                 FlashMessage::class,
-                $e->getMessage(),
-                'Warning: ',
+                'The following error occurred: ' . $e->getMessage(),
+                'Preview could not be rendered: ',
                 ContextualFeedbackSeverity::WARNING
             );
             $this->flashMessageService->getMessageQueueByIdentifier('flowd.look.preview')->enqueue($flashMessage);
