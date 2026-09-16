@@ -1,0 +1,17 @@
+# phpstan/extension-installer loads phpstan-strict-rules, phpstan-phpunit and phpstan-typo3
+parameters:
+    level: max
+    paths:
+        - ../../Classes
+        - ../../Configuration
+        - ../../Tests
+    tmpDir: ../../.Build/phpstan
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # RecordEditAccess adapts to TYPO3 13 at runtime; analysed against TYPO3 14 the check is always true
+        -
+            identifier: function.alreadyNarrowedType
+            path: ../../Classes/Backend/RecordEditAccess.php
+        -
+            identifier: function.alreadyNarrowedType
+            path: ../../Tests/Unit/*

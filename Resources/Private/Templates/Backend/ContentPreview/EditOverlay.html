@@ -1,0 +1,27 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+<f:comment>
+    Hover overlay that opens the previewed record for editing, like the edit button in the element
+    header. "contextual" is true where be:link.editRecord supports the contextual edit panel
+    (TYPO3 14.3+); TYPO3 13 gets the classic edit link (no "module"/"contextual" arguments there).
+</f:comment>
+<div class="look-content-preview-wrap">
+    {iframe -> f:format.raw()}
+    <f:if condition="{contextual}">
+        <f:then>
+            <be:link.editRecord uid="{uid}" table="{table}" module="web_layout" returnUrl="{returnUrl}" contextual="{true}"
+                class="look-content-preview-edit" title="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:edit')}">
+                <span class="look-content-preview-edit__icon"><core:icon identifier="actions-open" size="small" /></span>
+            </be:link.editRecord>
+        </f:then>
+        <f:else>
+            <be:link.editRecord uid="{uid}" table="{table}" returnUrl="{returnUrl}"
+                class="look-content-preview-edit" title="{f:translate(key: 'LLL:EXT:core/Resources/Private/Language/locallang_common.xlf:edit')}">
+                <span class="look-content-preview-edit__icon"><core:icon identifier="actions-open" size="small" /></span>
+            </be:link.editRecord>
+        </f:else>
+    </f:if>
+</div>
+</html>

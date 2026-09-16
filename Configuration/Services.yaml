@@ -4,3 +4,5 @@ services:
         autowire: true
     Flowd\Look\:
         resource: '../Classes/*'
+        # value object, not a service
+        exclude: '../Classes/Asset/IsolatedRendering.php'

@@ -1,0 +1,157 @@
+..  include:: /Includes.rst.txt
+
+..  _known-problems:
+
+===============================
+Known problems and how to solve
+===============================
+
+Most problems come from the isolation of the preview frame. The frame has an
+*opaque origin*, which changes how browsers treat a few frontend techniques.
+This chapter lists the symptoms and the fixes.
+
+..  contents::
+    :local:
+    :depth: 1
+
+..  _known-problems-external-hosts:
+
+Assets from other hosts do not load
+===================================
+
+**Symptom:** web fonts from Google Fonts, a library from a CDN or images from
+an external server are missing in the preview, while they work on the
+website. The console reports a Content Security Policy violation, not a
+CORS error.
+
+**Cause:** the preview document inherits the Content Security Policy of the
+TYPO3 backend, which by default only allows assets from the backend's own
+host. Adding a CORS header does not help here, the browser refuses the
+request before it is sent.
+
+**Fix:** serve the assets from your own host, or extend the backend policy
+for the hosts you trust with a :file:`Configuration/ContentSecurityPolicies.php`
+in your site package:
+
+..  code-block:: php
+    :caption: EXT:my_site/Configuration/ContentSecurityPolicies.php
+
+    <?php
+
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\Directive;
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\Mutation;
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\MutationCollection;
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\MutationMode;
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\Scope;
+    use TYPO3\CMS\Core\Security\ContentSecurityPolicy\UriValue;
+    use TYPO3\CMS\Core\Type\Map;
+
+    return Map::fromEntries([
+        Scope::backend(),
+        new MutationCollection(
+            new Mutation(MutationMode::Extend, Directive::FontSrc, new UriValue('https://fonts.gstatic.com')),
+            new Mutation(MutationMode::Extend, Directive::StyleSrc, new UriValue('https://fonts.googleapis.com')),
+        ),
+    ]);
+
+See the `Content Security Policy chapter <https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ApiOverview/ContentSecurityPolicy/Index.html>`__
+of the core API reference for the details.
+
+..  _known-problems-fonts:
+
+Fonts or scripts do not load
+============================
+
+**Symptom:** the preview uses fallback fonts, or with
+:confval:`allowSiteScripts <flag-allow-site-scripts>` the site scripts do not
+run. The browser console inside the frame reports a CORS error.
+
+**Cause:** web fonts and JavaScript modules are loaded as cross-origin
+requests from the frame. The web server does not send
+:code:`Access-Control-Allow-Origin: *` for them. Look's own script is not
+affected, it is a classic script.
+
+**Fix:** add the header for the path your frontend build lives in, see
+:ref:`installation-webserver`.
+
+..  _known-problems-icons:
+
+SVG icons are missing
+=====================
+
+**Symptom:** icons referenced as an external SVG sprite are blank. The console
+says "Unsafe attempt to load URL ... from frame with URL about:srcdoc".
+
+**Cause:** :html:`<svg><use href="/icons.svg#play">` may only load files from
+the same origin, and the frame has none.
+
+**Fix:** inline the SVG when rendering for the preview. A small view helper
+that reads the icon file and returns its markup does the job. Detect the
+preview context in your templates, for example with a flag your preview
+template sets, and switch between the sprite reference (frontend) and the
+inline markup (preview):
+
+..  code-block:: html
+
+    <f:if condition="{isBackendPreview}">
+        <f:then>{my:svg.inline(path: 'EXT:my_site/Resources/Public/Icons/{name}.svg', class: 'icon')}</f:then>
+        <f:else>
+            <svg class="icon"><use href="{f:uri.resource(path: 'EXT:my_site/Resources/Public/Icons/{name}.svg')}#icon"></use></svg>
+        </f:else>
+    </f:if>
+
+Icons that are inlined in the frontend anyway need no change.
+
+..  _known-problems-three-times:
+
+The preview appears three times
+===============================
+
+**Symptom:** with Content Blocks, the whole preview is repeated three times.
+
+**Cause:** Content Blocks renders :file:`backend-preview.html` for the header,
+the content and the footer of the element.
+
+**Fix:** use the :html:`Preview` layout with a :html:`Content` section, see
+:ref:`usage-content-blocks`.
+
+..  _known-problems-images:
+
+Images are missing, "File ... does not exist"
+=============================================
+
+**Symptom:** the preview shows broken images or an error about a processed
+file that does not exist.
+
+**Cause:** backend requests defer image processing to a later request. A
+frontend template that expects the processed file immediately (for example a
+custom picture renderer) does not get it.
+
+**Fix:** set the :php:`fileProcessing` aspect of the TYPO3 context to
+non-deferred (:php:`new FileProcessingAspect(false)`) while rendering the
+preview, in the same wrapper that handles the visibility aspect.
+
+..  _known-problems-red-callout:
+
+A red callout instead of the preview
+====================================
+
+**Symptom:** the page module shows "Preview could not be rendered" with an
+error message and a code.
+
+**Cause:** rendering the frontend markup threw an exception.
+
+**Fix:** in development context (or with backend debugging enabled) the
+callout names the problem, usually a missing partial, a wrong argument or a
+PHP error in a view helper; in production it shows only the error code and
+the details go to the TYPO3 log. Correct the template and reload the page
+module.
+
+..  _known-problems-install-tool:
+
+Nothing works in the standalone Install Tool
+============================================
+
+The previews need the nonce of a backend request. The standalone Install Tool
+(:file:`/typo3/install.php`) has none and does not render page module
+previews, which is expected.

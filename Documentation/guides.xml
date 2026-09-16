@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<guides
+    xmlns="https://www.phpdoc.org/guides"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://www.phpdoc.org/guides ../vendor/phpdocumentor/guides-cli/resources/schema/guides.xsd"
+    links-are-relative="true"
+>
+    <extension
+        class="\T3Docs\Typo3DocsTheme\DependencyInjection\Typo3DocsThemeExtension"
+        project-home="https://github.com/flowdgmbh/typo3-look"
+        project-repository="https://github.com/flowdgmbh/typo3-look"
+        project-issues="https://github.com/flowdgmbh/typo3-look/issues"
+        edit-on-github="flowdgmbh/typo3-look"
+        edit-on-github-branch="main"
+        typo3-core-preferred="stable"
+        interlink-shortcode="flowd/look"
+    />
+    <project
+        title="Look - real frontend previews in the TYPO3 page module"
+        version="main"
+        copyright="since 2024 by Flowd GmbH"
+    />
+    <inventory id="t3coreapi" url="https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/"/>
+    <inventory id="t3viewhelper" url="https://docs.typo3.org/other/typo3/view-helper-reference/main/en-us/"/>
+    <inventory id="t3tsconfig" url="https://docs.typo3.org/m/typo3/reference-tsconfig/main/en-us/"/>
+    <inventory id="content-blocks" url="https://docs.typo3.org/p/friendsoftypo3/content-blocks/main/en-us/"/>
+</guides>
