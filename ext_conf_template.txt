@@ -1,0 +1,5 @@
+# cat=basic; type=string; label=Default scale: Factor the preview is scaled down with, e.g. 0.5 shows the frontend at half size. Used when the view helper is called without "scale".
+contentPreview.scale = 0.5
+
+# cat=basic; type=int+; label=Default maximum height (px): Previews taller than this are cut off with a fade-out. 0 = no limit. Used when the view helper is called without "height".
+contentPreview.height = 0

@@ -1,0 +1,60 @@
+# Publishes a GitHub release to the TYPO3 Extension Repository (TER).
+#
+# Create a release with a semantic version tag (e.g. 1.2.0). The workflow checks that the tag
+# matches the version in ext_emconf.php, then uploads the extension with TYPO3 Tailor using the
+# release notes as upload comment. Required repository secret: TYPO3_API_TOKEN (create it at
+# https://extensions.typo3.org/my-access-tokens with the "extension publishing" scope).
+name: Publish to TER
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Upload to TER
+    runs-on: ubuntu-latest
+    env:
+      TYPO3_EXTENSION_KEY: look
+      TYPO3_API_TOKEN: ${{ secrets.TYPO3_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag against ext_emconf.php
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Tag '$GITHUB_REF_NAME' is not a semantic version"; exit 1
+          fi
+          EMCONF_VERSION=$(php -r '$_EXTKEY="look"; $EM_CONF=[]; include "ext_emconf.php"; echo $EM_CONF[$_EXTKEY]["version"];')
+          if [ "$VERSION" != "$EMCONF_VERSION" ]; then
+            echo "Tag version $VERSION does not match ext_emconf.php version $EMCONF_VERSION"; exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_ENV"
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install TYPO3 Tailor
+        run: composer global require typo3/tailor --no-interaction --no-progress
+
+      - name: Remove development files
+        run: composer prepare-release --no-interaction
+
+      # The release body reaches the script through the environment, never through "${{ }}"
+      # interpolation: expressions are substituted into the script text before the shell runs, so a
+      # body could otherwise end the here-document and have the rest executed as shell commands.
+      - name: Upload to TER
+        env:
+          RELEASE_BODY: ${{ github.event.release.body }}
+          REPOSITORY: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          COMMENT="$RELEASE_BODY"
+          if [ -z "$(echo "$COMMENT" | tr -d '[:space:]')" ]; then
+            COMMENT="Release $version, see https://github.com/$REPOSITORY/releases/tag/$TAG"
+          fi
+          ~/.composer/vendor/bin/tailor ter:publish --comment "$COMMENT" "$version"

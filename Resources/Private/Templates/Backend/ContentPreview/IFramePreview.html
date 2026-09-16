@@ -1,14 +1,37 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
         <title>Content Preview</title>
-        <f:for each="{assets.css}" as="cssFile">
-            <link rel="stylesheet" href="{f:uri.resource(path: cssFile)}" />
+        <f:comment>
+            Only the script tags below run (nonce of the backend request; 'strict-dynamic' covers their
+            module imports); scripts inside the preview content are blocked. Without "allowMedia" video,
+            audio and embedded frames are blocked as well. The document also inherits the CSP of the backend.
+        </f:comment>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-{nonce}' 'strict-dynamic';{f:if(condition: '!{allowMedia}', then: ' media-src \'none\'; frame-src \'none\';')}" />
+        <f:for each="{assets.css}" as="cssUri">
+            <link rel="stylesheet" href="{cssUri}" />
         </f:for>
+        <f:comment>assets the preview content registered via f:asset.css / f:asset.script</f:comment>
+        {assets.collectedStyles -> f:format.raw()}
 
-        <script type="module" src="{f:uri.resource(path: 'EXT:look/Resources/Public/Javascript/Backend/iFramePreview.js')}" async defer></script>
+        <f:comment>
+            A classic script, not a module: module scripts are always fetched in CORS mode, which fails
+            from the frame's opaque origin unless the server sends "Access-Control-Allow-Origin". This way
+            the preview works without any web server configuration. "defer" keeps it running after parsing.
+        </f:comment>
+        <script defer nonce="{nonce}" src="{assets.lookScript}"></script>
+        <f:for each="{assets.js}" as="jsUri">
+            <f:comment>
+                Site scripts stay modules (that is what frontend builds ship). They are deferred by default;
+                no "async", so DOMContentLoaded handlers in them still fire. Being modules, they need the
+                CORS header on their path, see the installation chapter.
+            </f:comment>
+            <script type="module" nonce="{nonce}" src="{jsUri}"></script>
+        </f:for>
+        {assets.collectedScripts -> f:format.raw()}
     </head>
-    <body data-preview-scale="{scale}">
+    <body class="{bodyClass}{f:if(condition: '!{allowMedia}', then: ' look-media-blocked')}" style="--preview-scale: {scale}">
         {previewContent -> f:format.raw()}
     </body>
 </html>
