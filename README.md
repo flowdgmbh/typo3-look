@@ -1,6 +1,20 @@
+> [!IMPORTANT]
+> **This repository has moved. It is archived and no longer maintained.**
+>
+> Development continues at **[flowd/typo3-look](https://github.com/flowd/typo3-look)**.
+> Please open issues and pull requests there, this repository is read-only and kept for
+> reference only.
+>
+> The Composer package was renamed along with it:
+>
+> ```bash
+> composer require flowd/typo3-look
+> ```
+>
+> The TYPO3 extension key is unchanged and remains `look`.
+
 # Look - real frontend previews in the TYPO3 page module
 
-[![CI](https://github.com/flowdgmbh/typo3-look/actions/workflows/ci.yml/badge.svg)](https://github.com/flowdgmbh/typo3-look/actions/workflows/ci.yml)
 [![TYPO3 13 / 14](https://img.shields.io/badge/TYPO3-13.4%20%7C%2014.3-orange)](https://get.typo3.org/)
 [![License GPL-2.0-or-later](https://img.shields.io/badge/license-GPL--2.0--or--later-blue)](LICENSE)
 
@@ -41,7 +55,7 @@ extend it. Both are covered in the documentation.
 ## Installation
 
 ```bash
-composer require flowd/look
+composer require flowd/typo3-look
 vendor/bin/typo3 extension:setup
 ```
 
@@ -98,7 +112,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['look.contentPreview.editOverlay'
 
 The full manual (installation, usage, configuration, security model, known problems and their
 fixes) lives in [`Documentation/`](Documentation/Index.rst) and is rendered at
-https://docs.typo3.org/p/flowd/look/main/en-us/.
+https://docs.typo3.org/p/flowd/typo3-look/main/en-us/.
 
 ## Development
 
